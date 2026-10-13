@@ -5,6 +5,7 @@ from allsee.engines import build_targets
 from allsee.live import live_checks
 from allsee.report import save_json, save_html
 from allsee.utils import classify
+from allsee.photo import file_info, reverse_links
 
 class App(tk.Tk):
     def __init__(self):
@@ -24,6 +25,7 @@ class App(tk.Tk):
         ttk.Button(top, text="Open Top 12", command=self.open_top).pack(side="left", padx=6)
         ttk.Button(top, text="Export HTML", command=self.export_html).pack(side="left")
         ttk.Button(top, text="Export JSON", command=self.export_json).pack(side="left", padx=6)
+        ttk.Button(top, text="Photo...", command=self.photo).pack(side="left")
         self.info = ttk.Label(self, text="name / @username / phone / email", padding=(10, 0))
         self.info.pack(fill="x")
         mid = ttk.Panedwindow(self, orient="horizontal")
@@ -101,6 +103,25 @@ class App(tk.Tk):
         if p:
             save_json(self.hits, self.live, self.query, p)
             self.status.config(text=f"saved -> {p}")
+
+    def photo(self):
+        p = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.jpeg *.png *.webp *.bmp")])
+        if not p:
+            return
+        info = file_info(p)
+        self.detail.delete("1.0", "end")
+        self.detail.insert("end", json.dumps(info, indent=2) + "\n\n")
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        links = reverse_links()
+        self.hits = []
+        from allsee.engines import Hit
+        for l in links:
+            self.tree.insert("", "end", values=(l["source"], "upload the photo there"))
+            self.hits.append(Hit(l["source"], l["url"], "reverse image upload"))
+            self.detail.insert("end", f"[{l['source']}] {l['url']}\n")
+        self.info.config(text=f"photo: {info.get('format')} {info.get('size')} md5={info.get('md5','')[:12]}")
+        self.status.config(text="pick a source, upload the photo, double-click row to open")
 
 def main():
     App().mainloop()
