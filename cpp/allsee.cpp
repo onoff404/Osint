@@ -49,11 +49,11 @@ int main() {
     std::cout << "Type what you know: a name, a @username,\na phone number, an email, or a photo file.\n\n";
     while (true) {
         std::cout << "\n[1] Search a name / username / phone / email\n[2] Search by photo (opens reverse-image sites)\n[3] Quit\nChoice: ";
-        std::string c; std::getline(std::cin, c);
+        std::string c; if (!std::getline(std::cin, c)) break;
         if (c == "3" || c == "q") break;
         if (c == "2") {
             std::cout << "Photo file path (or ENTER to just open upload pages): ";
-            std::string p; std::getline(std::cin, p);
+            std::string p; if (!std::getline(std::cin, p)) break;
             if (!p.empty()) std::cout << "File: " << file_md5_note(p) << "\n";
             std::cout << "\nOpening upload pages. Pick one, drop the photo in.\n";
             std::vector<Link> L = {
@@ -66,13 +66,13 @@ int main() {
             };
             for (size_t i = 0; i < L.size(); i++) std::cout << " " << (i+1) << ". " << L[i].name << "\n";
             std::cout << "Open all? (y/n): ";
-            std::string a; std::getline(std::cin, a);
+            std::string a; if (!std::getline(std::cin, a)) break;
             if (a == "y" || a == "Y") for (auto& l : L) open_url(l.url);
-            else { std::cout << "Number to open: "; std::string n; std::getline(std::cin, n); int k = atoi(n.c_str()); if (k>=1 && k<=(int)L.size()) open_url(L[k-1].url); }
+            else { std::cout << "Number to open: "; std::string n; if (!std::getline(std::cin, n)) break; int k = atoi(n.c_str()); if (k>=1 && k<=(int)L.size()) open_url(L[k-1].url); }
             continue;
         }
         std::cout << "Enter it: ";
-        std::string q; std::getline(std::cin, q);
+        std::string q; if (!std::getline(std::cin, q)) break;
         if (q.empty()) continue;
         std::string e = urlenc(q);
         std::vector<Link> L = {
@@ -87,7 +87,7 @@ int main() {
         std::cout << "\nI will open public search pages for: " << q << "\n";
         for (size_t i = 0; i < L.size(); i++) std::cout << " " << (i+1) << ". " << L[i].name << "\n";
         std::cout << " 8. Open ALL\nNumber: ";
-        std::string n; std::getline(std::cin, n);
+        std::string n; if (!std::getline(std::cin, n)) break;
         int k = atoi(n.c_str());
         if (k == 8) for (auto& l : L) open_url(l.url);
         else if (k >= 1 && k <= (int)L.size()) open_url(L[k-1].url);
